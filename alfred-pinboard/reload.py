@@ -51,8 +51,9 @@ if __name__ == '__main__':
         exit(0)
 
     try:
-        url = 'https://api.pinboard.in/v1/posts/all?format=json&auth_token=%s:%s'%(user,token)
-        data = urllib.urlopen(url).read()
+        command = 'curl https://api.pinboard.in/v1/posts/all\?format\=json\&auth_token\=%s:%s'%(user,token)
+        output = os.popen(command)
+        data = output.read();
         filename = os.environ['HOME']+'/.bookmarks.json'
         f = open(filename,'w')
         f.write(data)
@@ -67,10 +68,11 @@ if __name__ == '__main__':
     notes_server = note_list_server(user,token)
     notes_cache = note_list_cache()
     
-    for n in notes_server['notes']:
-        text = update_content(notes_cache,n['id'],n['hash'])
-        if text:
-            n['text'] = text
+    if notes_server:
+        for n in notes_server['notes']:
+            text = update_content(notes_cache,n['id'],n['hash'])
+            if text:
+                n['text'] = text
 
     with open(os.environ['HOME']+'/.bookmarks-note.json', 'w+') as myFile:
         myFile.write(json.dumps(notes_server))
